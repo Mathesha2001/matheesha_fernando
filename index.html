@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathii Fernando - Premium Grooming</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.1/p5.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .floating { animation: float 3s ease-in-out infinite; }
+        .gradient-text { background: linear-gradient(45deg, #8B5CF6, #EC4899); -webkit-background-clip: text; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 overflow-x-hidden">
+
+    <!-- 3D Background -->
+    <div id="three-container" class="fixed inset-0 opacity-20 -z-10"></div>
+
+    <!-- Particle System -->
+    <div id="p5-canvas" class="fixed inset-0 -z-20"></div>
+
+    <!-- Sticky Navigation -->
+    <nav class="fixed w-full bg-gray-900/90 backdrop-blur-md border-b border-gray-700 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold gradient-text">Mathii Fernando</div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#services" class="hover:text-pink-400 transition-colors">Services</a>
+                <a href="#gallery" class="hover:text-pink-400 transition-colors">Gallery</a>
+                <a href="#booking" class="hover:text-pink-400 transition-colors">Booking</a>
+                <a href="#contact" class="hover:text-pink-400 transition-colors">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center pt-24 px-4">
+        <div class="text-center max-w-4xl" data-aos="fade-up">
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 gradient-text floating">
+                Redefining Modern Grooming
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-300 mb-12">
+                Precision cuts, luxury treatments, and personalized styling experiences
+            </p>
+            <button onclick="showBooking()" 
+                    class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-12 py-4 rounded-full 
+                           hover:scale-105 transition-transform duration-300 shadow-xl">
+                Book Now
+            </button>
+        </div>
+    </section>
+
+    <!-- Services Grid -->
+    <section id="services" class="py-20 bg-gray-900/50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-16">Premium Services</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Service Card -->
+                <div class="service-card" data-aos="fade-up">
+                    <div class="bg-gray-800 rounded-2xl p-8 hover:bg-gray-700 transition-colors h-full">
+                        <div class="w-20 h-20 mb-6 bg-purple-500/10 rounded-xl flex items-center justify-center">
+                            ✂️
+                        </div>
+                        <h3 class="text-2xl font-semibold mb-4">Signature Haircut</h3>
+                        <p class="text-gray-400 mb-6">Expert styling with precision tools</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-pink-400 font-medium">60 mins</span>
+                            <span class="text-xl font-bold">$45</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Add more service cards -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Booking -->
+    <section id="booking" class="py-20 bg-gray-950">
+        <div class="container mx-auto px-6 max-w-2xl">
+            <div class="bg-gray-800 rounded-3xl p-8 shadow-xl" data-aos="fade-up">
+                <h3 class="text-3xl font-bold mb-8">Book Your Session</h3>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block mb-3 text-gray-400">Select Date</label>
+                        <input type="date" class="w-full bg-gray-700 rounded-xl px-5 py-3 focus:ring-2 focus:ring-pink-500">
+                    </div>
+                    <div>
+                        <label class="block mb-3 text-gray-400">Select Service</label>
+                        <select class="w-full bg-gray-700 rounded-xl px-5 py-3">
+                            <option>Signature Haircut</option>
+                            <option>Royal Shave</option>
+                            <option>Luxury Facial</option>
+                        </select>
+                    </div>
+                    <button class="w-full bg-pink-500 hover:bg-pink-600 py-4 rounded-xl font-bold transition-colors">
+                        Confirm Booking
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3D Animation -->
+    <script>
+        // Initialize Three.js Scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('three-container').appendChild(renderer.domElement);
+
+        // Create geometric objects
+        const geometries = [
+            new THREE.IcosahedronGeometry(3),
+            new THREE.TorusKnotGeometry(2, 0.5),
+            new THREE.OctahedronGeometry(2.5)
+        ];
+
+        geometries.forEach((geo, index) => {
+            const material = new THREE.MeshStandardMaterial({ 
+                color: new THREE.Color().setHSL(index/3, 0.8, 0.5),
+                wireframe: true 
+            });
+            const mesh = new THREE.Mesh(geo, material);
+            mesh.position.set(
+                Math.random() * 10 - 5,
+                Math.random() * 10 - 5,
+                Math.random() * 10 - 5
+            );
+            scene.add(mesh);
+        });
+
+        camera.position.z = 15;
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            scene.children.forEach((obj, index) => {
+                obj.rotation.x += 0.005 * (index + 1);
+                obj.rotation.y += 0.005 * (index + 1);
+            });
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+
+    <!-- p5.js Particles -->
+    <script>
+        let particles = [];
+        class Particle {
+            constructor() {
+                this.pos = createVector(random(width), random(height));
+                this.vel = createVector(random(-1,1), random(-1,1));
+                this.size = random(2,5);
+            }
+
+            update() {
+                this.pos.add(this.vel);
+                if(this.pos.x < 0 || this.pos.x > width) this.vel.x *= -1;
+                if(this.pos.y < 0 || this.pos.y > height) this.vel.y *= -1;
+            }
+
+            display() {
+                stroke(139, 92, 246, 150);
+                strokeWeight(this.size);
+                point(this.pos.x, this.pos.y);
+            }
+        }
+
+        function setup() {
+            let canvas = createCanvas(windowWidth, windowHeight);
+            canvas.parent('p5-canvas');
+            for(let i = 0; i < 150; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function draw() {
+            clear();
+            particles.forEach(p => {
+                p.update();
+                p.display();
+            });
+        }
+    </script>
+
+    <!-- App Functionality -->
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true,
+            easing: 'ease-out-quad'
+        });
+
+        function showBooking() {
+            document.getElementById('booking').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // Responsive adjustments
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+
+</body>
+</html>
